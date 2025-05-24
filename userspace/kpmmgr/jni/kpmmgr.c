@@ -44,6 +44,10 @@
 // error return -N
 #define SUKISU_KPM_VERSION 34
 
+// prctl(xxx, 100, 0)
+// success return 1,
+#define CMD_ENABLE_KPM 100
+
 #define CONTROL_CODE(n) (n)
 
 void print_usage(const char *prog) {
@@ -56,6 +60,7 @@ void print_usage(const char *prog) {
     printf("  info <name>           Get info of a KPM module\n");
     printf("  control <name> <args> Send control command to a KPM module\n");
     printf("  version               Print KPM Loader version\n");
+    printf("  check_kpm             Check if KPM is enabled\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -103,6 +108,14 @@ int main(int argc, char *argv[]) {
         ret = prctl(KSU_OPTIONS, CONTROL_CODE(SUKISU_KPM_VERSION), buffer, sizeof(buffer), &out);
         if (out >= 0) {
             printf("%s", buffer);
+        }
+    } else if (strcmp(argv[1], "check_kpm") == 0) {
+        // 检查 KPM 是否启用
+        ret = prctl(KSU_OPTIONS, CMD_ENABLE_KPM, 0, NULL, &out);
+        if (out >= 0) {
+            printf("KPM is %s\n", out ? "enabled" : "disabled");
+        } else {
+            printf("Failed to check KPM status\n");
         }
     } else {
         print_usage(argv[0]);
